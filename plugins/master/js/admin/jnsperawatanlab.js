@@ -56,7 +56,7 @@ $("#form").on("click", "#simpan", function(event){
     total_byr: total_byr,
     kd_pj: kd_pj,
     kelas: kelas,
-    kategori: kategori, 
+    kategori: kategori,
     status: status
   } ,function(data) {
       $("#display").show().load(baseURL + '/master/jnsperawatanlabdisplay?t=' + mlite.token);
@@ -64,7 +64,7 @@ $("#form").on("click", "#simpan", function(event){
       $("#tutupform").val("Buka Form");
       $("#tutupform").attr("id", "bukaform");
       $('#notif').html("<div class=\"alert alert-success alert-dismissible fade in\" role=\"alert\" style=\"border-radius:0px;margin-top:-15px;\">"+
-      "Data bahasa telah disimpan!"+
+      "Data pemeriksaan laboratorium telah disimpan!"+
       "<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\">&times;</button>"+
       "</div>").show();
   });
@@ -143,7 +143,7 @@ $("#form").on("click","#hapus", function(event){
         $("#tutupform").attr("id", "bukaform");
         $("#display").load(baseURL + '/master/jnsperawatanlabdisplay?t=' + mlite.token);
         $('#notif').html("<div class=\"alert alert-danger alert-dismissible fade in\" role=\"alert\" style=\"border-radius:0px;margin-top:-15px;\">"+
-        "Data bahasa telah dihapus!"+
+        "Data pemeriksaan laboratorium telah dihapus!"+
         "<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\">&times;</button>"+
         "</div>").show();
       });
