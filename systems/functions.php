@@ -26,7 +26,7 @@ function deleteDir($path)
 
 function createSlug($text)
 {
-    setlocale(LC_ALL, 'pl_PL');
+    setlocale(LC_ALL, 'en_EN');
     $text = str_replace(' ', '-', trim($text));
     $text = str_replace('.', '-', trim($text));
     $text = iconv('utf-8', 'ascii//translit', $text);
@@ -162,6 +162,19 @@ function addTokenVedika($url)
     return $url;
 }
 
+function addTokenVeronisa($url)
+{
+    if (isset($_SESSION['veronisa_token'])) {
+        if (parse_url($url, PHP_URL_QUERY)) {
+            return $url.'&t='.$_SESSION['veronisa_token'];
+        } else {
+            return $url.'?t='.$_SESSION['veronisa_token'];
+        }
+    }
+
+    return $url;
+}
+
 function url($data = null)
 {
     if (filter_var($data, FILTER_VALIDATE_URL) !== false) {
@@ -197,6 +210,10 @@ function url($data = null)
 
     if (strpos($url, '/veda/') !== false) {
         $url = addTokenVedika($url);
+    }
+
+    if (strpos($url, '/vero/') !== false) {
+        $url = addTokenVeronisa($url);
     }
 
     return $url;
@@ -544,11 +561,7 @@ function formatDuit($duit){
     return "Rp. ".number_format($duit,0,",",".").",-";
 }
 
-function stringDecrypt($consid, $secretkey, $string){
-    date_default_timezone_set('UTC');
-    $tStamp = strval(time()-strtotime('1970-01-01 00:00:00'));
-    //=====KEY====/
-    $key = $consid.$secretkey.$tStamp;
+function stringDecrypt($key, $string){
 
     $encrypt_method = 'AES-256-CBC';
     $key_hash = hex2bin(hash('sha256', $key));
@@ -560,5 +573,5 @@ function stringDecrypt($consid, $secretkey, $string){
 }
 
 function decompress($string){
-    return \Systems\Lib\LZCompressor\LZString::decompressFromEncodedURIComponent($string);
+    return \LZCompressor\LZString::decompressFromEncodedURIComponent($string);
 }

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>KhanzaLITE - {$module.name}</title>
+    <title>mLITE - {$module.name}</title>
     <link rel="icon" href="{?=url()?}/{$mlite.logo}" type="image/x-icon">
     <link href="{$mlite.path}/assets/css/{$mlite.theme_admin}.min.css?v={$mlite.version}" rel="stylesheet">
     <link href="{$mlite.path}/assets/css/animate.min.css?v={$mlite.version}" rel="stylesheet">
@@ -15,8 +15,8 @@
     <link rel="manifest" href="{$mlite.path}/manifest.json" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="application-name" content="KhanzaLITE" />
-    <meta name="apple-mobile-web-app-title" content="KhanzaLITE" />
+    <meta name="application-name" content="mLITE" />
+    <meta name="apple-mobile-web-app-title" content="mLITE" />
     <meta name="theme-color" content="#222" />
     <meta name="msapplication-navbutton-color" content="#222" />
     <meta name="apple-mobile-web-app-status-bar-style" content="green-translucent" />
@@ -27,7 +27,7 @@
     <link rel="icon" sizes="192x192" href="{$mlite.path}/assets/images/icon-192x192.png" />
     <link rel="apple-touch-icon" sizes="192x192" href="{$mlite.path}/assets/images/icon-192x192.png" />
     <link rel="icon" sizes="256x256" href="{$mlite.path}/assets/images/icon-256x256.png" />
-    <link rel="apple-touch-icon" sizes="256x256" href="{$mlite.path}/assets/images/ticon-256x256.png" />
+    <link rel="apple-touch-icon" sizes="256x256" href="{$mlite.path}/assets/images/icon-256x256.png" />
     <link rel="icon" sizes="384x384" href="{$mlite.path}/assets/images/icon-384x384.png" />
     <link rel="apple-touch-icon" sizes="384x384" href="{$mlite.path}/assets/images/icon-384x384.png" />
     <link rel="icon" sizes="512x512" href="{$mlite.path}/assets/images/icon-512x512.png" />
@@ -69,7 +69,9 @@
           <div class="container-fluid">
             <ul class="nav navbar-nav">
               <li><a href="#" data-toggle="modal" data-target="#menuModal"><img class="img-responsive" src="{?= url('/assets/img/icon-home.png') ?}" style="display:inline-block;height:24px;margin-top:-2px;margin-right:5px;" alt=""> Menu</a></li>
+              {if: $mlite.module_pasien}
               <li><a href="{?=url([ADMIN, 'pasien', 'manage'])?}"{if: !$mlite.pasien_access || !$mlite.module_pasien} class="btn disabled"{/if}><img class="menu_icon" src="{?= url('/assets/img/icon-pasien.png') ?}" alt=""> Pasien</a></li>
+              {/if}
               {if: $this->core->getUserInfo('role') == 'medis'}
                 <li><a href="{?=url([ADMIN, 'dokter_igd', 'manage'])?}"{if: !$mlite.dokter_igd_access} class="btn disabled"{/if}><img class="menu_icon" src="{?= url('/assets/img/icon-igd.png') ?}" alt=""> Dokter IGD</a></li>
                 <li><a href="{?=url([ADMIN, 'dokter_ralan', 'manage'])?}"{if: !$mlite.dokter_ralan_access} class="btn disabled"{/if}><img class="menu_icon" src="{?= url('/assets/img/icon-ralan.png') ?}" alt=""> Dokter Ralan</a></li>
@@ -78,7 +80,9 @@
                 {if: $mlite.module_igd}
                 <li><a href="{?=url([ADMIN, 'igd', 'manage'])?}"{if: !$mlite.igd_access || !$mlite.module_igd} class="btn disabled"{/if}><img class="menu_icon" src="{?= url('/assets/img/icon-igd.png') ?}" alt=""> IGD</a></li>
                 {/if}
+                {if: $mlite.module_rawat_jalan}
                 <li><a href="{?=url([ADMIN, 'rawat_jalan', 'manage'])?}"{if: !$mlite.rawat_jalan_access || !$mlite.module_rawat_jalan} class="btn disabled"{/if}><img class="menu_icon" src="{?= url('/assets/img/icon-ralan.png') ?}" alt=""> Rawat Jalan</a></li>
+                {/if}
                 {if: $mlite.module_rawat_inap}
                 <li><a href="{?=url([ADMIN, 'rawat_inap', 'manage'])?}"{if: !$mlite.rawat_inap_access || !$mlite.module_rawat_inap} class="btn disabled"{/if}><img class="menu_icon" src="{?= url('/assets/img/icon-ranap.png') ?}" alt=""> Rawat Inap</a></li>
                 {/if}
@@ -99,14 +103,26 @@
                   <li><a href="{?=url()?}/anjungan/bed" target="_blank">Ketersediaan Kamar</a></li>
                   <li role="separator" class="divider"></li>
                   <li><a href="{?=url()?}/anjungan/pasien" target="_blank">Anjungan Pasien Mandiri</a></li>
+                  <li><a href="{?=url()?}/anjungan/sep" target="_blank">Anjungan Cetak SEP</a></li>
                   <li><a href="{?=url()?}/anjungan/loket" target="_blank">Antrian Loket</a></li>
-                  <li><a href="{?=url()?}/anjungan/poli" target="_blank">Antrian Poliklinik</a></li>
                   <li><a href="{?=url()?}/anjungan/laboratorium" target="_blank">Antrian Laboratorium</a></li>
+                  <li><a href="{?=url()?}/anjungan/apotek" target="_blank">Antrian Apotek</a></li>
+                  <li><a href="{?=url()?}/anjungan/poli" target="_blank">Antrian Poliklinik</a></li>
+                  <li role="separator" class="divider"></li>
+                  <li><a href="{?=url()?}/anjungan/poli/all" target="_blank">Antrian Poliklinik Alternatif</a></li>
+                  {loop: $mlite.poliklinik}
+                    {if: $value.attr == 'selected'}
+                      <li><a href="{?=url()?}/anjungan/poli/{$value.kd_poli}" target="_blank">Antrian {$value.nm_poli}</a></li>
+                    {/if}
+                  {/loop}
+                  <li role="separator" class="divider"></li>
+                  <li><a href="{?=url()?}/anjungan/ausyi/loket" target="_blank">Antrian Loket Ausyi</a></li>
+                  <li><a href="{?=url()?}/anjungan/ausyi/pasien" target="_blank">Antrian Pasien Ausyi</a></li>
                 </ul>
               </li>
               {/if}
               <li class="dropdown">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><img class="menu_icon" src="{?= url('/assets/img/icon-about.png') ?}" alt=""> KhanzaLITE
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><img class="menu_icon" src="{?= url('/assets/img/icon-about.png') ?}" alt=""> mLITE
                 <span class="caret"></span></a>
                 <ul class="dropdown-menu">
                   <li><a href="#" data-toggle="modal" data-target="#tentangModal"> Tentang</a></li>
@@ -149,7 +165,7 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-lg-12" style="margin-bottom:50px !important;">
-                        <h2 class="content-title">{if: $module.name !== 'Dashboard'}<a href="{?=url([ADMIN,$module.dir,'manage'])?}">{$module.name}</a> <a href="{?=url([ADMIN,'dashboard','help',$module.dir])?}" data-toggle="modal" data-target="#moduleModal"><span class="pull-right"><small class="hidden-xs">Help</small> <i class="fa fa-question-circle-o" aria-hidden="true"></i></span></a>{/if}</h2>
+                        <h2 class="content-title">{if: $module.name == 'Rawat Jalan' | $module.name == 'Pengguna'}<a href="{?=url([ADMIN,$module.dir,'index'])?}">{$module.name}</a>{else}<a href="{?=url([ADMIN,$module.dir,'manage'])?}">{$module.name}</a>{/if} <a href="{?=url([ADMIN,'dashboard','help',$module.dir])?}" data-toggle="modal" data-target="#moduleModal"><span class="pull-right"><small class="hidden-xs">Help</small> <i class="fa fa-question-circle-o" aria-hidden="true"></i></span></a></h2>
                         {$module.content}
                     </div>
                 </div>
@@ -237,7 +253,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Bantuan KhanzaLITE</h4>
+                    <h4 class="modal-title">Bantuan mLITE</h4>
                 </div>
                 <div class="modal-body">
 
@@ -253,22 +269,24 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Tentang KhanzaLITE</h4>
+                    <h4 class="modal-title">Tentang mLITE</h4>
                 </div>
                 <div class="modal-body">
                   <div class="text-center">
                     <img src="{?=url()?}/themes/admin/img/logo.png" width="50px" alt="">
                     <h4>
-                      KhanzaLITE
+                      mLITE
                       <div class="">
                         <small>
                           {$mlite.version}
                         </small>
                       </div>
                     </h4>
-                    <p>The awesome SIMRS Khanza alternate.<br>
-                      Clean, Light and Modular Medical Management Systems.</p>
+                    <p>The awesome SIMRS Khanza alternate<br>
+                      <b>Successor of KhanzaLITE</b><br>
+                      Clean, Light and Modular Medical Management Systems</p>
                     <p>Made with <i class="fa fa-heart text-danger"></i> and <i class="fa fa-coffee text-primary"></i> by <a href="https://basoro.id/" target="_blank"><b>drg. F. Basoro</b></a> & Friends.</p>
+                    <p>Thank you to our main sponsors <span class="badge badge-info badge-style-light">RSUD H. Damanhuri Barabai</span> and <span class="badge badge-warning badge-style-light">RS Aura Syifa Kediri</span>. Also Klinik Utama Cahaya Imani Kandangan, RSIA Muntilan Magelang, RSU Ceria Kandangan, RSUD Datu Sanggul Rantau, RSUD Daha Sejahtera Kandangan and other hospitals that we cannot mention one by one. Also contributors who have been involved in development.</p>
                     <p>Email: dentix.id@gmail.com - Telegram: @basoro</p>
                     <p>Copyright © 2018 - {?=date('Y')?}</p>
                   </div>

@@ -319,7 +319,7 @@ Ralan :
                 <i style="font-size:9px;">
                   *Saya Menyetujui BPJS Kesehatan menggunakan informasi Medis Pasien jika diperlukan.<br>
                   **SEP bukan sebagai bukti penjaminan peserta<br>
-                  Cetakan ke 1 {?=date("d/m/Y h:i:s A")?}<br>
+                  Cetakan ke 1 {?=date("d/m/Y H:i:s A")?}<br>
                   Masa berlaku {$print_sep.bridging_sep.tglrujukan} s/d {$print_sep.batas_rujukan}
                 </i>
               </td>
@@ -524,6 +524,14 @@ Ralan :
                 <td valign="top" colspan="7"> : {$value.rtl}</td>
              </tr>
              <tr>
+                <td valign="top" colspan="2">Instruksi</td>
+                <td valign="top" colspan="7"> : {$value.instruksi}</td>
+             </tr>
+             <tr>
+                <td valign="top" colspan="2">Evaluasi</td>
+                <td valign="top" colspan="7"> : {$value.evaluasi}</td>
+             </tr>
+             <tr>
                 <td valign="top" colspan="2">Alergi</td>
                 <td valign="top" colspan="7"> : {$value.alergi}</td>
              </tr>
@@ -577,6 +585,14 @@ Ralan :
              <tr>
                 <td valign="top" colspan="2">Plan</td>
                 <td valign="top" colspan="7"> : {$value.rtl}</td>
+             </tr>
+             <tr>
+                <td valign="top" colspan="2">Instruksi</td>
+                <td valign="top" colspan="7"> : {$value.instruksi}</td>
+             </tr>
+             <tr>
+                <td valign="top" colspan="2">Evaluasi</td>
+                <td valign="top" colspan="7"> : {$value.evaluasi}</td>
              </tr>
              <tr>
                 <td valign="top" colspan="2">Alergi</td>
@@ -823,7 +839,7 @@ Ralan :
       {*Hasil Radiologi*}
       {if: $hasil_radiologi}
       <tr class="isi">
-        <td valign="top" width="20%">Hasil Radiologi</td>
+        <td valign="top" width="20%">Hasil Radiologi/Interpretasi</td>
         <td valign="top" width="1%" align="center">:</td>
         <td valign="top" width="79%">
           <table width="100%" border="1" align="center" cellpadding="3px" cellspacing="0" class="tbl_form">

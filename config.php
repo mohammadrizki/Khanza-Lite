@@ -1,20 +1,23 @@
 <?php
 if (!version_compare(PHP_VERSION, '5.5.0', '>=')) {
-    exit("Khanza LITE requires at least <b>PHP 5.5</b>");
+    exit("mLITE requires at least <b>PHP 5.5</b>");
 }
 
-define('DBHOST', 'localhost');
+define('DBHOST', '127.0.0.1');
 define('DBPORT', '3306');
-define('DBUSER', 'root');
-define('DBPASS', 'basoro');
+define('DBUSER', 'mlite_dev');
+define('DBPASS', 'mlite_dev');
 define('DBNAME', 'mlite_dev');
 
 // URL Webapps
-define('WEBAPPS_URL', 'http://localhost/webapps');
+define('WEBAPPS_URL', 'http://mlite.loc/webapps');
 define('WEBAPPS_PATH', BASE_DIR . '/webapps');
 
 // Admin cat name
 define('ADMIN', 'admin');
+
+// Multi APP
+define('MULTI_APP', false);
 
 // Themes path
 define('THEMES', BASE_DIR . '/themes');
@@ -39,7 +42,8 @@ define('BASIC_MODULES', serialize([
     5 => 'kepegawaian',
     6 => 'farmasi',
     8 => 'users',
-    7 => 'modules'
+    7 => 'modules',
+   10 => 'wagateway'
 ]));
 
 // Developer mode

@@ -3,7 +3,7 @@
 namespace Plugins\JKN_Mobile_FKTP;
 
 use Systems\SiteModule;
-use Systems\Lib\BpjsRequest;
+use Systems\Lib\PcareRequest;
 
 class Site extends SiteModule
 {
@@ -22,7 +22,7 @@ class Site extends SiteModule
 
     public function getIndex()
     {
-        $referensi_poli = $this->db('maping_poliklinik_pcare')->toArray();
+        $referensi_poli = $this->core->mysql('maping_poliklinik_pcare')->toArray();
         echo $this->draw('index.html', ['referensi_poli' => $referensi_poli]);
         exit();
     }
@@ -51,14 +51,14 @@ class Site extends SiteModule
         $hari=$day[$tentukan_hari];
 
         $poliklinik = str_replace(",","','", $this->settings->get('jkn_mobile_fktp.display'));
-        $query = $this->db()->pdo()->prepare("SELECT a.kd_dokter, a.kd_poli, b.nm_poli, c.nm_dokter, a.jam_mulai, a.jam_selesai FROM jadwal a, poliklinik b, dokter c WHERE a.kd_poli = b.kd_poli AND a.kd_dokter = c.kd_dokter AND a.hari_kerja = '$hari'  AND a.kd_poli IN ('$poliklinik')");
+        $query = $this->core->mysql()->pdo()->prepare("SELECT a.kd_dokter, a.kd_poli, b.nm_poli, c.nm_dokter, a.jam_mulai, a.jam_selesai FROM jadwal a, poliklinik b, dokter c WHERE a.kd_poli = b.kd_poli AND a.kd_dokter = c.kd_dokter AND a.hari_kerja = '$hari'  AND a.kd_poli IN ('$poliklinik')");
         $query->execute();
         $rows = $query->fetchAll(\PDO::FETCH_ASSOC);;
 
         $result = [];
         if (count($rows)) {
             foreach ($rows as $row) {
-                $row['dalam_pemeriksaan'] = $this->db('reg_periksa')
+                $row['dalam_pemeriksaan'] = $this->core->mysql('reg_periksa')
                   ->join('pasien', 'pasien.no_rkm_medis = reg_periksa.no_rkm_medis')
                   ->where('tgl_registrasi', $date)
                   ->where('stts', 'Berkas Diterima')
@@ -66,14 +66,14 @@ class Site extends SiteModule
                   ->where('kd_dokter', $row['kd_dokter'])
                   ->limit(1)
                   ->oneArray();
-                $row['dalam_antrian'] = $this->db('reg_periksa')
+                $row['dalam_antrian'] = $this->core->mysql('reg_periksa')
                   ->select(['jumlah' => 'COUNT(DISTINCT reg_periksa.no_rawat)'])
                   ->join('poliklinik', 'poliklinik.kd_poli = reg_periksa.kd_poli')
                   ->where('reg_periksa.tgl_registrasi', date('Y-m-d'))
                   ->where('reg_periksa.kd_poli', $row['kd_poli'])
                   ->where('reg_periksa.kd_dokter', $row['kd_dokter'])
                   ->oneArray();
-                $row['sudah_dilayani'] = $this->db('reg_periksa')
+                $row['sudah_dilayani'] = $this->core->mysql('reg_periksa')
                   ->select(['count' => 'COUNT(DISTINCT reg_periksa.no_rawat)'])
                   ->join('poliklinik', 'poliklinik.kd_poli = reg_periksa.kd_poli')
                   ->where('reg_periksa.tgl_registrasi', date('Y-m-d'))
@@ -85,7 +85,7 @@ class Site extends SiteModule
                 if(!empty($row['sudah_dilayani'])) {
                   $row['sudah_dilayani']['jumlah'] = $row['sudah_dilayani']['count'];
                 }
-                $row['selanjutnya'] = $this->db('reg_periksa')
+                $row['selanjutnya'] = $this->core->mysql('reg_periksa')
                   ->select('reg_periksa.no_reg')
                   ->select(['no_urut_reg' => 'ifnull(MAX(CONVERT(RIGHT(reg_periksa.no_reg,3),signed)),0)'])
                   ->select('pasien.nm_pasien')
@@ -96,7 +96,7 @@ class Site extends SiteModule
                   ->where('reg_periksa.kd_dokter', $row['kd_dokter'])
                   ->asc('reg_periksa.no_reg')
                   ->toArray();
-                $row['get_no_reg'] = $this->db('reg_periksa')
+                $row['get_no_reg'] = $this->core->mysql('reg_periksa')
                   ->select(['max' => 'ifnull(MAX(CONVERT(RIGHT(no_reg,3),signed)),0)'])
                   ->where('tgl_registrasi', $date)
                   ->where('kd_poli', $row['kd_poli'])
@@ -218,15 +218,15 @@ class Site extends SiteModule
             }
 
             if (!empty($decode['nomorkartu']) && !empty($decode['nik']) && !empty($decode['kodepoli']) && !empty($decode['tanggalperiksa'])) {
-                $data_pasien = $this->db('pasien')->where('no_peserta', $decode['nomorkartu'])->oneArray();
-                $poli = $this->db('maping_poliklinik_pcare')->where('kd_poli_pcare', $decode['kodepoli'])->oneArray();
-                $cek_kouta = $this->db()->pdo()->prepare("SELECT jadwal.kuota - (SELECT COUNT(booking_registrasi.tanggal_periksa) FROM booking_registrasi WHERE booking_registrasi.tanggal_periksa='$decode[tanggalperiksa]' AND booking_registrasi.kd_dokter=jadwal.kd_dokter) as sisa_kouta, jadwal.kd_dokter, jadwal.kd_poli, jadwal.jam_mulai as jam_mulai, poliklinik.nm_poli, dokter.nm_dokter FROM jadwal INNER JOIN maping_poliklinik_pcare ON maping_poliklinik_pcare.kd_poli_rs=jadwal.kd_poli INNER JOIN poliklinik ON poliklinik.kd_poli=jadwal.kd_poli INNER JOIN dokter ON dokter.kd_dokter=jadwal.kd_dokter WHERE jadwal.hari_kerja='$hari' AND maping_poliklinik_pcare.kd_poli_pcare='$decode[kodepoli]' GROUP BY jadwal.kd_dokter HAVING sisa_kouta > 0 ORDER BY sisa_kouta DESC LIMIT 1");
+                $data_pasien = $this->core->mysql('pasien')->where('no_peserta', $decode['nomorkartu'])->oneArray();
+                $poli = $this->core->mysql('maping_poliklinik_pcare')->where('kd_poli_pcare', $decode['kodepoli'])->oneArray();
+                $cek_kouta = $this->core->mysql()->pdo()->prepare("SELECT jadwal.kuota - (SELECT COUNT(booking_registrasi.tanggal_periksa) FROM booking_registrasi WHERE booking_registrasi.tanggal_periksa='$decode[tanggalperiksa]' AND booking_registrasi.kd_dokter=jadwal.kd_dokter) as sisa_kouta, jadwal.kd_dokter, jadwal.kd_poli, jadwal.jam_mulai as jam_mulai, poliklinik.nm_poli, dokter.nm_dokter FROM jadwal INNER JOIN maping_poliklinik_pcare ON maping_poliklinik_pcare.kd_poli_rs=jadwal.kd_poli INNER JOIN poliklinik ON poliklinik.kd_poli=jadwal.kd_poli INNER JOIN dokter ON dokter.kd_dokter=jadwal.kd_dokter WHERE jadwal.hari_kerja='$hari' AND maping_poliklinik_pcare.kd_poli_pcare='$decode[kodepoli]' GROUP BY jadwal.kd_dokter HAVING sisa_kouta > 0 ORDER BY sisa_kouta DESC LIMIT 1");
                 $cek_kouta->execute();
                 $cek_kouta = $cek_kouta->fetch();
 
                 if (!empty($cek_kouta['sisa_kouta']) and $cek_kouta['sisa_kouta'] > 0) {
                     if ($data_pasien['no_ktp'] != '') {
-                        $no_reg_akhir = $this->db()->pdo()->prepare("SELECT max(no_reg) FROM booking_registrasi WHERE kd_poli='$poli[kd_poli_rs]' and tanggal_periksa='$decode[tanggalperiksa]'");
+                        $no_reg_akhir = $this->core->mysql()->pdo()->prepare("SELECT max(no_reg) FROM booking_registrasi WHERE kd_poli='$poli[kd_poli_rs]' and tanggal_periksa='$decode[tanggalperiksa]'");
                         $no_reg_akhir->execute();
                         $no_reg_akhir = $no_reg_akhir->fetch();
                         if(empty($no_reg_akhir[0])) {
@@ -237,7 +237,7 @@ class Site extends SiteModule
                         $jenisantrean = 2;
                         $minutes = $no_urut_reg * 10;
                         $cek_kouta['jam_mulai'] = date('H:i:s',strtotime('+'.$minutes.' minutes',strtotime($cek_kouta['jam_mulai'])));
-                        $query = $this->db('booking_registrasi')->save([
+                        $query = $this->core->mysql('booking_registrasi')->save([
                             'tanggal_booking' => date('Y-m-d'),
                             'jam_booking' => date('H:i:s'),
                             'no_rkm_medis' => $data_pasien['no_rkm_medis'],
@@ -245,7 +245,7 @@ class Site extends SiteModule
                             'kd_dokter' => $cek_kouta['kd_dokter'],
                             'kd_poli' => $cek_kouta['kd_poli'],
                             'no_reg' => $no_reg,
-                            'kd_pj' => $this->settings->get('pendaftaran.bpjs'),
+                            'kd_pj' => $this->settings->get('jkn_mobile_fktp.kd_pj'),
                             'limit_reg' => 1,
                             'waktu_kunjungan' => $decode['tanggalperiksa'].' '.$cek_kouta['jam_mulai'],
                             'status' => 'Belum'
@@ -257,7 +257,7 @@ class Site extends SiteModule
                                     'nomorantrean' => $no_reg,
                                     'angkaantrean' => $no_reg,
                                     'namapoli' => $cek_kouta['nm_poli'],
-                                    'sisaantrean' => strtotime($cek_kouta['jam_mulai']) * 1000,
+                                    'sisaantrean' => $cek_kouta['sisa_kouta'] - 1,
                                     'antreanpanggil' => $no_reg,
                                     'keterangan' => 'Datang 30 Menit sebelum pelayanan, Konfirmasi kehadiran dibagian pendaftaran dengan menunjukan bukti pendaftaran melalui Mobile JKN, Terima Kasih..'
                                 ),
@@ -313,6 +313,7 @@ class Site extends SiteModule
     {
         header("Content-Type: application/json");
         $slug = parseURL();
+        //print_r($slug);
         if(count($slug) == 4) {$n = 0;}
         if(count($slug) == 5) {$n = 1;}
         if(count($slug) == 6) {$n = 2;}
@@ -320,23 +321,44 @@ class Site extends SiteModule
         $header = apache_request_headers();
         $response = array();
         if ($slug[(1+$n)] == 'status' && $header[$this->settings->get('jkn_mobile_fktp.header')] == $this->_getToken() && $header[$this->settings->get('jkn_mobile_fktp.header_username')] == $this->settings->get('jkn_mobile_fktp.username')) {
-            $data = $this->db('reg_periksa')
-              ->select('poliklinik.nm_poli')
-              ->select(['total_antrean' => 'COUNT(DISTINCT reg_periksa.no_rawat)'])
-              ->select(['sisa_antrean' => 'SUM(CASE WHEN reg_periksa.stts=\'Belum\' THEN 1 ELSE 0 END)'])
-              ->join('poliklinik', 'poliklinik.kd_poli = reg_periksa.kd_poli')
-              ->join('maping_poliklinik_pcare', 'maping_poliklinik_pcare.kd_poli_rs = reg_periksa.kd_poli')
-              ->where('reg_periksa.tgl_registrasi', $slug[(3+$n)])
-              ->where('maping_poliklinik_pcare.kd_poli_pcare', $slug[(2+$n)])
-              ->oneArray();
-            $get_no_reg = $this->db('reg_periksa')
-              ->select('reg_periksa.no_reg')
-              ->join('maping_poliklinik_pcare', 'maping_poliklinik_pcare.kd_poli_pcare = reg_periksa.kd_poli')
-              ->where('reg_periksa.tgl_registrasi', $slug[(3+$n)])
-              ->where('maping_poliklinik_pcare.kd_poli_pcare', $slug[(2+$n)])
-              ->where('reg_periksa.stts', 'Berkas Diterima')
-              ->limit(1)
-              ->oneArray();
+            if($slug[(3+$n)] == date('Y-m-d')) {
+              $data = $this->core->mysql('reg_periksa')
+                ->select('poliklinik.nm_poli')
+                ->select(['total_antrean' => 'COUNT(DISTINCT reg_periksa.no_rawat)'])
+                ->select(['sisa_antrean' => 'SUM(CASE WHEN reg_periksa.stts=\'Belum\' THEN 1 ELSE 0 END)'])
+                ->join('poliklinik', 'poliklinik.kd_poli = reg_periksa.kd_poli')
+                ->join('maping_poliklinik_pcare', 'maping_poliklinik_pcare.kd_poli_rs = reg_periksa.kd_poli')
+                ->where('reg_periksa.tgl_registrasi', $slug[(3+$n)])
+                ->where('maping_poliklinik_pcare.kd_poli_pcare', $slug[(2+$n)])
+                ->oneArray();
+              $get_no_reg = $this->core->mysql('reg_periksa')
+                ->select('reg_periksa.no_reg')
+                ->join('maping_poliklinik_pcare', 'maping_poliklinik_pcare.kd_poli_pcare = reg_periksa.kd_poli')
+                ->where('reg_periksa.tgl_registrasi', $slug[(3+$n)])
+                ->where('maping_poliklinik_pcare.kd_poli_pcare', $slug[(2+$n)])
+                ->where('reg_periksa.stts', 'Berkas Diterima')
+                ->limit(1)
+                ->oneArray();
+            } else {
+              $data = $this->core->mysql('booking_registrasi')
+                ->select('poliklinik.nm_poli')
+                ->select(['total_antrean' => 'COUNT(DISTINCT booking_registrasi.no_reg)'])
+                ->select(['sisa_antrean' => 'SUM(CASE WHEN booking_registrasi.status=\'Belum\' THEN 1 ELSE 0 END)'])
+                ->join('poliklinik', 'poliklinik.kd_poli = booking_registrasi.kd_poli')
+                ->join('maping_poliklinik_pcare', 'maping_poliklinik_pcare.kd_poli_rs = booking_registrasi.kd_poli')
+                ->where('booking_registrasi.tanggal_periksa', $slug[(3+$n)])
+                ->where('maping_poliklinik_pcare.kd_poli_pcare', $slug[(2+$n)])
+                ->oneArray();
+              $get_no_reg = $this->core->mysql('booking_registrasi')
+                ->select('booking_registrasi.no_reg')
+                ->join('maping_poliklinik_pcare', 'maping_poliklinik_pcare.kd_poli_rs = booking_registrasi.kd_poli')
+                ->where('booking_registrasi.tanggal_periksa', $slug[(3+$n)])
+                ->where('maping_poliklinik_pcare.kd_poli_pcare', $slug[(2+$n)])
+                ->where('booking_registrasi.status', 'Belum')
+                ->limit(1)
+                ->oneArray();
+            }
+
             $data['antrean_panggil'] = '000';
             if(!empty($get_no_reg['no_reg'])) {
                $data['antrean_panggil'] = $get_no_reg['no_reg'];
@@ -383,18 +405,89 @@ class Site extends SiteModule
 
     private function _resultSisaAntrean()
     {
-        header("Content-Type: application/json");
-        $header = apache_request_headers();
-        $konten = trim(file_get_contents("php://input"));
-        $decode = json_decode($konten, true);
-        $response = array();
-        $response = array(
-            'metadata' => array(
-                'message' => 'Cooming Soon',
-                'code' => 505
-            )
-        );
-        echo json_encode($response);
+      header("Content-Type: application/json");
+      $slug = parseURL();
+      //print_r($slug);
+      if(count($slug) == 5) {$n = 0;}
+      if(count($slug) == 6) {$n = 1;}
+      if(count($slug) == 7) {$n = 2;}
+      $header = apache_request_headers();
+      $response = array();
+      if ($slug[(1+$n)] == 'sisapeserta' && $header[$this->settings->get('jkn_mobile_fktp.header')] == $this->_getToken() && $header[$this->settings->get('jkn_mobile_fktp.header_username')] == $this->settings->get('jkn_mobile_fktp.username')) {
+        if($slug[(4+$n)] == date('Y-m-d')) {
+          $data = $this->core->mysql('reg_periksa')
+            ->select('poliklinik.nm_poli')
+            ->select(['total_antrean' => 'COUNT(DISTINCT reg_periksa.no_rawat)'])
+            ->select(['sisa_antrean' => 'SUM(CASE WHEN reg_periksa.stts=\'Belum\' THEN 1 ELSE 0 END)'])
+            ->join('poliklinik', 'poliklinik.kd_poli = reg_periksa.kd_poli')
+            ->join('maping_poliklinik_pcare', 'maping_poliklinik_pcare.kd_poli_rs = reg_periksa.kd_poli')
+            ->where('reg_periksa.tgl_registrasi', $slug[(3+$n)])
+            ->where('maping_poliklinik_pcare.kd_poli_pcare', $slug[(3+$n)])
+            ->oneArray();
+          $get_no_reg = $this->core->mysql('reg_periksa')
+            ->select('reg_periksa.no_reg')
+            ->join('maping_poliklinik_pcare', 'maping_poliklinik_pcare.kd_poli_pcare = reg_periksa.kd_poli')
+            ->where('reg_periksa.tgl_registrasi', $slug[(4+$n)])
+            ->where('maping_poliklinik_pcare.kd_poli_pcare', $slug[(3+$n)])
+            ->where('reg_periksa.stts', 'Berkas Diterima')
+            ->limit(1)
+            ->oneArray();
+        } else {
+          $data = $this->core->mysql('booking_registrasi')
+            ->select('poliklinik.nm_poli')
+            ->select(['total_antrean' => 'COUNT(DISTINCT booking_registrasi.no_reg)'])
+            ->select(['sisa_antrean' => 'SUM(CASE WHEN booking_registrasi.status=\'Belum\' THEN 1 ELSE 0 END)'])
+            ->join('poliklinik', 'poliklinik.kd_poli = booking_registrasi.kd_poli')
+            ->join('maping_poliklinik_pcare', 'maping_poliklinik_pcare.kd_poli_rs = booking_registrasi.kd_poli')
+            ->where('booking_registrasi.tanggal_periksa', $slug[(4+$n)])
+            ->where('maping_poliklinik_pcare.kd_poli_pcare', $slug[(3+$n)])
+            ->oneArray();
+          $get_no_reg = $this->core->mysql('booking_registrasi')
+            ->select('booking_registrasi.no_reg')
+            ->join('maping_poliklinik_pcare', 'maping_poliklinik_pcare.kd_poli_rs = booking_registrasi.kd_poli')
+            ->where('booking_registrasi.tanggal_periksa', $slug[(4+$n)])
+            ->where('maping_poliklinik_pcare.kd_poli_pcare', $slug[(3+$n)])
+            ->where('booking_registrasi.status', 'Belum')
+            ->limit(1)
+            ->oneArray();
+        }
+
+          $data['antrean_panggil'] = '000';
+          if(!empty($get_no_reg['no_reg'])) {
+             $data['antrean_panggil'] = $get_no_reg['no_reg'];
+          }
+
+          if ($data['nm_poli'] != '') {
+              $response = array(
+                  'response' => array(
+                      'nomorantrean' => $data['total_antrean'],
+                      'namapoli' => $data['nm_poli'],
+                      'sisaantrean' => $data['sisa_antrean'],
+                      'antreanpanggil' => $data['antrean_panggil'],
+                      'keterangan' => 'Datanglah Minimal 30 Menit, jika no antrian anda terlewat, silakan konfirmasi ke bagian Pendaftaran atau Perawat Poli, Terima Kasih.'
+                  ),
+                  'metadata' => array(
+                      'message' => 'Ok',
+                      'code' => 200
+                  )
+              );
+          } else {
+              $response = array(
+                  'metadata' => array(
+                      'message' => 'Maaf belum Ada Antrian ditanggal ' . $slug[(3+$n)],
+                      'code' => 201
+                  )
+              );
+          }
+      } else {
+          $response = array(
+              'metadata' => array(
+                  'message' => 'Access denied',
+                  'code' => 401
+              )
+          );
+      }
+      echo json_encode($response);
 
     }
 
@@ -413,16 +506,16 @@ class Site extends SiteModule
         $response = array();
         if ($header[$this->settings->get('jkn_mobile_fktp.header')] == $this->_getToken() && $header[$this->settings->get('jkn_mobile_fktp.header_username')] == $this->settings->get('jkn_mobile_fktp.username')) {
             if (!empty($decode['nomorkartu']) && !empty($decode['kodepoli']) && !empty($decode['tanggalperiksa'])) {
-                $data_pasien = $this->db('pasien')->where('no_peserta', $decode['nomorkartu'])->oneArray();
-                $poli = $this->db('maping_poliklinik_pcare')->where('kd_poli_pcare', $decode['kodepoli'])->oneArray();
-                $cek = $this->db('booking_registrasi')
+                $data_pasien = $this->core->mysql('pasien')->where('no_peserta', $decode['nomorkartu'])->oneArray();
+                $poli = $this->core->mysql('maping_poliklinik_pcare')->where('kd_poli_pcare', $decode['kodepoli'])->oneArray();
+                $cek = $this->core->mysql('booking_registrasi')
                     ->where('no_rkm_medis', $data_pasien['no_rkm_medis'])
                     ->where('kd_poli', $poli['kd_poli_rs'])
                     ->where('tanggal_periksa', $decode['tanggalperiksa'])
                     ->where('status', 'Belum')
                     ->oneArray();
                 if (!empty($data_pasien['no_rkm_medis'])) {
-                    $query = $this->db('booking_registrasi')
+                    $query = $this->core->mysql('booking_registrasi')
                         ->where('no_rkm_medis', $data_pasien['no_rkm_medis'])
                         ->where('kd_poli', $poli['kd_poli_rs'])
                         ->where('tanggal_periksa', $decode['tanggalperiksa'])

@@ -23,8 +23,11 @@
           <div class="form-group">
             <label for="jk" class="col-sm-3 control-label">Sex</label>
             <div class="col-sm-4">
-              <label class="radio-inline"><input type="radio" name="jk" value="L" {if: $pasien.jk == 'L'}checked{/if}><span class="fa fa-male"></span></label>
-              <label class="radio-inline"><input type="radio" name="jk" value="P" {if: $pasien.jk == 'P'}checked{/if}><span class="fa fa-female"></span></label>
+              <select class="form-control" name="jk" id="jk">
+                <option value=""></option>
+                <option value="L" {if: $pasien.jk == 'L'}selected{/if}>Laki-Laki</option>
+                <option value="P" {if: $pasien.jk == 'P'}selected{/if}>Perempuan</option>
+              </select>
             </div>
             <label for="tgl_lahir" class="col-sm-2 control-label">Tgl. Lahir</label>
             <div class="col-sm-3">
@@ -90,7 +93,7 @@
                 {/loop}
               </select>
             </div>
-            <label for="no_peserta" class="col-sm-2 control-label">No. Peserta</label>
+            <label for="no_peserta" class="col-sm-2 control-label">No. Kartu</label>
             <div class="col-sm-3">
               <input type="text" name="no_peserta" id="no_peserta" class="form-control noKartu" value="{$pasien.no_peserta}">
             </div>
@@ -180,7 +183,7 @@
     <div class="text-center">
       <button type="button" name="button" class="btn btn-success" id="simpan"><i class="fa fa-save"></i><span class="hidden-xs"> Simpan</span></button>
       <button type="button" name="button" class="btn btn-info hidden" id="kartu" data-no_rkm_medis="{$pasien.no_rkm_medis}"><i class="fa fa-address-book-o"></i><span class="hidden-xs"> Kartu</span></button>
-      <a href="{$urlUploadPhoto}" name="button" class="btn btn-warning hidden hidden-lg hidden-lg" id="foto"><i class="fa fa-camera"></i></a>
+      <a href="{$urlUploadPhoto}" name="button" class="btn btn-warning hidden" id="foto"><i class="fa fa-camera"></i><span class="hidden-xs"> Foto</span></a>
       <button type="button" name="button" class="btn btn-primary hidden" id="kirimwa" data-toggle="modal" data-target="#waModal" data-no_tlp={$pasien.no_tlp}><i class="fa fa-whatsapp"></i><span class="hidden-xs"> Kirim WA</span></button>
       <button type="button" name="button" class="btn btn-danger hidden" id="hapus"><i class="fa fa-trash"></i><span class="hidden-xs"> Hapus</span></button>
       <button type="button" name="button" class="btn btn-primary" id="batal"><i class="fa fa-close"></i><span class="hidden-xs"> Batal</span></button>
@@ -338,6 +341,37 @@
 
  </script>
 <script>
+  {if: $cek_pcare}
+  $("#no_ktp").on('keyup', function (event) {
+    var baseURL = mlite.url + '/' + mlite.admin;
+    var tgl = $('input:text[name=tgl_daftar]').val();
+    var no_ktp = $('input:text[name=no_ktp]').val();
+    var url = baseURL + '/pcare/byjeniskartu/nik/' + no_ktp + '/' + tgl + '?t=' + mlite.token;
+
+    if (event.key === 'Enter' || event.keyCode === 13) {
+
+      $.get(url, function(data){
+        var data = JSON.parse(data);
+        var json_obj = [data];
+        if(!json_obj[0]) {
+          alert('Koneksi ke server BPJS terputus. Silahkan ulangi lagi!');
+        } else if(json_obj[0].metaData.code == 200) {
+          $('.nama').val(data.response.nama);
+          $('.noKartu').val(data.response.noKartu);
+          $('.sex').val(data.response.sex);
+          $('.tgl_lahir').val(moment(data.response.tglLahir).format('YYYY-MM-DD'));
+          $('.noTelepon').val(data.response.noHP);
+          if(data.response.kdProviderPst.kdProvider !== '{$usernamePcare}'){
+            alert('Pasien tidak terdaftar sebagai peserta.');
+          }
+        } else {
+          alert(json_obj[0].metaData.message);
+        }
+      });
+    }
+    event.preventDefault();
+  });
+  {else}
   $("#no_ktp").on('keyup', function (event) {
     var baseURL = mlite.url + '/' + mlite.admin;
     var tgl = $('input:text[name=tgl_daftar]').val();
@@ -364,6 +398,39 @@
     }
     event.preventDefault();
   });
+  {/if}
+  {if: $cek_pcare}
+  $("#no_peserta").on('keyup', function (event) {
+    var baseURL = mlite.url + '/' + mlite.admin;
+    var tgl = $('input:text[name=tgl_daftar]').val();
+    var no_peserta = $('input:text[name=no_peserta]').val();
+    var url = baseURL + '/pcare/peserta/' + no_peserta + '?t=' + mlite.token;
+
+    if (event.key === 'Enter' || event.keyCode === 13) {
+
+      $.get(url, function(data){
+        //console.log(data);
+        var data = JSON.parse(data);
+        var json_obj = [data];
+        if(!json_obj[0]) {
+          alert('Koneksi ke server BPJS terputus. Silahkan ulangi lagi!');
+        } else if(json_obj[0].metaData.code == 200) {
+          $('.nama').val(data.response.nama);
+          $('.no_ktp').val(data.response.noKTP);
+          $('.sex').val(data.response.sex);
+          $('.tgl_lahir').val(moment(data.response.tglLahir).format('YYYY-MM-DD'));
+          $('.noTelepon').val(data.response.noHP);
+          if(data.response.kdProviderPst.kdProvider !== '{$usernamePcare}'){
+            alert('Pasien tidak terdaftar sebagai peserta.');
+          }
+        } else {
+          alert(json_obj[0].metaData.message);
+        }
+      });
+    }
+    event.preventDefault();
+  });
+  {else}
   $("#no_peserta").on('keyup', function (event) {
     var baseURL = mlite.url + '/' + mlite.admin;
     var tgl = $('input:text[name=tgl_daftar]').val();
@@ -373,6 +440,7 @@
     if (event.key === 'Enter' || event.keyCode === 13) {
 
       $.get(url, function(data){
+        //console.log(data);
         var data = JSON.parse(data);
         var json_obj = [data];
         if(!json_obj[0]) {
@@ -390,6 +458,7 @@
     }
     event.preventDefault();
   });
+  {/if}
 </script>
 <script>
   $(document).ready(function() {
@@ -446,7 +515,7 @@
   	var sender = '{$waapiphonenumber}';
   	var number = document.getElementById("number").value;
   	var message = document.getElementById("message").value;
-  	console.log(api_key + " - " + number + " - " + message);
+  	//console.log(api_key + " - " + number + " - " + message);
   	xhttp.onreadystatechange = function() {
   		if (this.readyState == 4 && this.status == 200) {
   			var data=xhttp.responseText;

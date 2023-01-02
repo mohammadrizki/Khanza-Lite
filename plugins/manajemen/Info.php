@@ -2,10 +2,10 @@
 
 return [
     'name'          =>  'Manajemen',
-    'description'   =>  'Modul manajemen untuk KhanzaLITE',
+    'description'   =>  'Modul manajemen untuk mLITE',
     'author'        =>  'Basoro',
     'version'       =>  '1.0',
-    'compatibility' =>  '2021',
+    'compatibility' =>  '2023',
     'icon'          =>  'dashboard',
     'install'       =>  function () use ($core) {
       $core->db()->pdo()->exec("INSERT INTO `mlite_settings` (`module`, `field`, `value`) VALUES ('manajemen', 'penjab_umum', 'UMU')");

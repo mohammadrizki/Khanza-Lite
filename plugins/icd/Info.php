@@ -2,9 +2,14 @@
 
 return [
     'name'          =>  'ICD 9 - 10 Request',
-    'description'   =>  'Modul ICD 9 - 10 untuk KhanzaLITE',
+    'description'   =>  'Modul ICD 9 - 10 untuk mLITE',
     'author'        =>  'Basoro',
     'version'       =>  '1.0',
-    'compatibility' =>  '2021',
-    'icon'          =>  'database'
+    'compatibility' =>  '2023',
+    'icon'          =>  'database',
+    'install'       =>  function () use ($core) {
+    },
+    'uninstall'     =>  function() use($core)
+    {
+    }
 ];

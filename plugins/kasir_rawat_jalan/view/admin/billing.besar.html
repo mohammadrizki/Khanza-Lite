@@ -173,6 +173,38 @@
 			{/loop}
 			<tr border='1', height='20px'>
 				<td>VIII</td>
+				<td colspan="1">Jasa Operasi</td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			{loop: $billing_besar_detail.operasi as $data}
+			<tr border='0', height='20px'>
+				<td></td>
+				<td>- {$data.nm_perawatan}</td>
+				<td>Rp. <span class="pull-right">{?= number_format($data.jumlah,2,',','.')?}</span></td>
+				<td>1</td>
+				<td>Rp. <span class="pull-right">{?= number_format($data.jumlah,2,',','.')?}</span></td>
+			</tr>
+			{/loop}
+			<tr border='1', height='20px'>
+				<td>IX</td>
+				<td colspan="1">Obat dan BHP Operasi</td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			{loop: $billing_besar_detail.obat_operasi as $data}
+			<tr border='0', height='20px'>
+				<td></td>
+				<td>- {$data.nm_obat}</td>
+				<td>Rp. <span class="pull-right">{?= number_format($data.hargasatuan,2,',','.')?}</span></td>
+				<td>{$data.jumlah}</td>
+				<td>Rp. <span class="pull-right">{?= number_format($data.harga,2,',','.')?}</span></td>
+			</tr>
+			{/loop}
+			<tr border='1', height='20px'>
+				<td>X</td>
 				<td colspan="1">Biaya Tambahan</td>
 				<td></td>
 				<td></td>
@@ -210,7 +242,9 @@
 				<td colspan=3>
 					<br><br>
 				<p align="center" ><strong>{$settings.kota}, {?=date('d-m-Y')?}</strong><br>
-				 Kasir<br><br><br>
+				 Kasir<br><br>
+				 <img src="{$qrCode}">
+				 <br><br>
 				{$fullname}<br>
 				</p>
 				</td>
@@ -289,8 +323,8 @@ function KirimEmail() {
 }
 function KirimWA() {
 	var xhttp = new XMLHttpRequest();
-	var api_key = '{$settings.waapitoken}';
-	var sender = '{$settings.waapiphonenumber}';
+	var api_key = '{$wagateway.token}';
+	var sender = '{$wagateway.phonenumber}';
 	var number = document.getElementById("number").value;
 	var message = document.getElementById("message").value;
 	var tipe = 'pdf';
@@ -310,7 +344,7 @@ function KirimWA() {
 	xhttp.open("POST", "{?=url([ADMIN,'api','kirimwa'])?}", true);
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send("api_key=" + api_key + "&sender=" + sender + "&number=" + number + "&message=" + message);
-	xhttp.open("POST", "{?=url([ADMIN,'api','kirimwamedia'])?}", true);
+	xhttp.open("POST", "{?=url([ADMIN,'api','kirimwadocument'])?}", true);
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhttp.send("api_key=" + api_key + "&sender=" + sender + "&number=" + number + "&message=" + message + "&tipe=" + tipe + "&file=" + file);
 }

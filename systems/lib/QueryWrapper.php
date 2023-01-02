@@ -174,12 +174,13 @@ class QueryWrapper
             $value = '(' . implode(',', array_fill(0, count($value), '?')) . ')';
         } else {
             array_push($this->condition_binds, $value);
+            $value = "?";
         }
 
         if (empty($this->conditions) || strpos(end($this->conditions), '(') !== false) {
-            array_push($this->conditions, "$column $operator ?");
+            array_push($this->conditions, "$column $operator $value");
         } else {
-            array_push($this->conditions, "$ao $column $operator ?");
+            array_push($this->conditions, "$ao $column $operator $value");
         }
 
         return $this;
@@ -542,9 +543,21 @@ class QueryWrapper
 
     protected function _getColumns()
     {
-        //$q = $this->pdo()->query("PRAGMA table_info(".$this->table.")")->fetchAll();
-        //return array_column($q, 'name');
-        $q = $this->pdo()->query("DESCRIBE $this->table;")->fetchAll();
-        return array_column($q, 'Field');
+        if(MULTI_APP) {
+            $dbFile = BASE_DIR.'/systems/data/database.sdb';
+            $db = new \PDO('sqlite:'.$dbFile);
+            $table = $this->table;
+            $check = $db->query("SELECT name FROM sqlite_master WHERE type='table' AND name='".$table."'")->fetchColumn();
+            if ($db->query("PRAGMA table_info(".$this->table.")")->fetchAll()) {
+              $q = $this->pdo()->query("PRAGMA table_info(".$this->table.")")->fetchAll();
+              return array_column($q, 'name');
+            } else {
+              $q = $this->pdo()->query("DESCRIBE $this->table;")->fetchAll();
+              return array_column($q, 'Field');
+            }
+        } else {
+            $q = $this->pdo()->query("DESCRIBE $this->table;")->fetchAll();
+            return array_column($q, 'Field');
+        }
     }
 }

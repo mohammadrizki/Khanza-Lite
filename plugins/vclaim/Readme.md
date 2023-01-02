@@ -1,5 +1,5 @@
 ### BPJS Kesehatan Indonesia
-KhanzaLITE Library package to access BPJS Kesehatan API.
+mLITE Library package to access BPJS Kesehatan API.
 This package is a wrapper of BPJS VClaim Web Service
 https://dvlp.bpjs-kesehatan.go.id/VClaim-Katalog
 
@@ -11,7 +11,7 @@ https://dvlp.bpjs-kesehatan.go.id/VClaim-Katalog
 public function getDiagnosa($keyword)
 {
     $url = $this->api_url.'referensi/diagnosa/'.$keyword;
-    $output = BpjsService::get($url, NULL, $this->consid, $this->secretkey);
+    $output = BpjsService::get($url, NULL, $this->consid, $this->secretkey, $this->user_key);
     $json = json_decode($output, true);
     var_dump($json);
     exit();
@@ -23,7 +23,7 @@ public function getDiagnosa($keyword)
 public function getByNoKartu($noKartu, $tglPelayananSEP)
 {
   $url = $this->api_url.'Peserta/nokartu/'.$noKartu.'/tglSEP/'.$tglPelayananSEP;
-  $output = BpjsService::get($url, NULL, $this->consid, $this->secretkey);
+  $output = BpjsService::get($url, NULL, $this->consid, $this->secretkey, $this->user_key);
   $json = json_decode($output, true);
   var_dump($json);
   exit();

@@ -24,10 +24,11 @@ class Admin extends Main
         $this->assign['tanggal']       = getDayIndonesia(date('Y-m-d')).', '.dateIndonesia(date('Y-m-d'));
         $this->assign['username']      = !empty($username) ? $username : $this->getUserInfo('username');
         $this->assign['notify']        = $this->getNotify();
-        $this->assign['powered']       = 'Powered by <a href="https://basoro.org/">KhanzaLITE</a>';
+        $this->assign['powered']       = 'Powered by <a href="https://mlite.id/">mLITE</a>';
         $this->assign['path']          = url();
         $this->assign['nama_instansi'] = $this->settings->get('settings.nama_instansi');
         $this->assign['logo'] = $this->settings->get('settings.logo');
+        $this->assign['wallpaper'] = $this->settings->get('settings.wallpaper');
         $this->assign['theme_admin'] = $this->settings->get('settings.theme_admin');
         $this->assign['version']       = $this->settings->get('settings.version');
         $this->assign['update_access'] = ($access == 'all') || in_array('settings', explode(',', $access)) ? true : false;
@@ -48,6 +49,8 @@ class Admin extends Main
         $this->assign['dokter_ralan_access'] = ($access == 'all') || in_array('dokter_ralan', explode(',', $access)) ? true : false;
         $this->assign['dokter_ranap_access'] = ($access == 'all') || in_array('dokter_ranap', explode(',', $access)) ? true : false;
         $this->assign['cek_anjungan'] = $this->db('mlite_modules')->where('dir', 'anjungan')->oneArray();
+
+        $this->assign['poliklinik'] = $this->_getPoliklinik($this->settings->get('anjungan.display_poli'));
 
         $this->assign['presensi'] = $this->db('mlite_modules')->where('dir', 'presensi')->oneArray();
 
@@ -254,6 +257,32 @@ class Admin extends Main
     private function registerPage($name, $path)
     {
         $this->registerPage[] = ['id' => null, 'title' => $name, 'slug' => $path];
+    }
+
+    private function _getPoliklinik($kd_poli = null)
+    {
+        $result = [];
+        $rows = $this->db('poliklinik')->toArray();
+
+        if (!$kd_poli) {
+            $kd_poliArray = [];
+        } else {
+            $kd_poliArray = explode(',', $kd_poli);
+        }
+
+        foreach ($rows as $row) {
+            if (empty($kd_poliArray)) {
+                $attr = '';
+            } else {
+                if (in_array($row['kd_poli'], $kd_poliArray)) {
+                    $attr = 'selected';
+                } else {
+                    $attr = '';
+                }
+            }
+            $result[] = ['kd_poli' => $row['kd_poli'], 'nm_poli' => $row['nm_poli'], 'attr' => $attr];
+        }
+        return $result;
     }
 
     public function getRegisteredPages()
