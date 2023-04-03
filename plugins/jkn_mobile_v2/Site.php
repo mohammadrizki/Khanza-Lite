@@ -18,6 +18,28 @@ class Site extends SiteModule
 
     public function routes()
     {
+
+        $this->route('jknmobile', 'getIndex');
+        $this->route('jknmobile/token', 'getToken');
+        $this->route('jknmobile/antrian/ambil', 'getAmbilAntrian');
+        $this->route('jknmobile/antrian/status', 'getStatusAntrian');
+        $this->route('jknmobile/antrian/ambilfarmasi', 'getAmbilAntrianFarmasi');
+        $this->route('jknmobile/antrian/statusfarmasi', 'getStatusAntrianFarmasi');
+        $this->route('jknmobile/antrian/sisa', 'getSisaAntrian');
+        $this->route('jknmobile/antrian/batal', 'getBatalAntrian');
+        $this->route('jknmobile/pasien/baru', 'getPasienBaru');
+        $this->route('jknmobile/pasien/checkin', 'getPasienCheckIn');
+        $this->route('jknmobile/operasi/rs', 'getOperasiRS');
+        $this->route('jknmobile/operasi/pasien', 'getOperasiPasien');
+        $this->route('jknmobile/antrian/add', '_getAntreanAdd');
+        $this->route('jknmobile/antrian/add/(:str)', '_getAntreanAdd');
+        $this->route('jknmobile/antrian/updatewaktu', '_getAntreanUpdateWaktu');
+        $this->route('jknmobile/antrian/updatewaktu/(:str)', '_getAntreanUpdateWaktu');
+        $this->route('jknmobile/antrian/waktutunggu/(:str)/(:str)/(:str)', '_getAntreanWaktuTunggu');
+        $this->route('jknmobile/antrian/tanggaltunggu/(:str)/(:str)', '_getAntreanWaktuTungguTanggal');
+        $this->route('jknmobile/antrian/listtask/(:str)', '_getAntreanGetListTask');
+        $this->route('jknmobile/jadwal/(:str)/(:str)', '_getJadwal');
+
         $this->route('jknmobile_v2', 'getIndex');
         $this->route('jknmobile_v2/token', 'getToken');
         $this->route('jknmobile_v2/antrian/ambil', 'getAmbilAntrian');
@@ -126,10 +148,9 @@ class Site extends SiteModule
             $h1 = strtotime('+1 days' , strtotime(date('Y-m-d'))) ;
             $h1 = date('Y-m-d', $h1);
             $_h1 = date('d-m-Y', strtotime($h1));
-            if($cek_rujukan > 0) {
+            $h7 = strtotime('+8 days', strtotime(date('Y-m-d'))) ;
+            if(!empty($cek_rujukan['tglrujukan'])) {
               $h7 = strtotime('+90 days', strtotime($cek_rujukan['tglrujukan']));
-            } else {
-              $h7 = strtotime('+7 days', strtotime(date('Y-m-d'))) ;
             }
             $h7 = date('Y-m-d', $h7);
             $_h7 = date('d-m-Y', strtotime($h7));
@@ -155,10 +176,10 @@ class Site extends SiteModule
             $cek_referensi = $this->core->mysql('mlite_antrian_referensi')->where('nomor_referensi', $decode['nomorreferensi'])->where('tanggal_periksa', $decode['tanggalperiksa'])->oneArray();
             $cek_referensi_noka = $this->core->mysql('mlite_antrian_referensi')->where('nomor_kartu', $decode['nomorkartu'])->where('tanggal_periksa', $decode['tanggalperiksa'])->oneArray();
 
-            if($cek_referensi > 0) {
+            if($cek_referensi) {
                $errors[] = 'Anda sudah terdaftar dalam antrian menggunakan nomor rujukan yang sama ditanggal '.$decode['tanggalperiksa'];
             }
-            if($cek_referensi_noka > 0) {
+            if($cek_referensi_noka) {
                $errors[] = 'Anda sudah terdaftar dalam antrian ditanggal '.$cek_referensi_noka['tanggal_periksa'].'. Silahkan pilih tanggal lain.';
             }
             if(empty($decode['nomorkartu'])) {
@@ -182,9 +203,9 @@ class Site extends SiteModule
             if(empty($decode['tanggalperiksa'])) {
                $errors[] = 'Anda belum memilih tanggal periksa';
             }
-            /*if(!empty($decode['tanggalperiksa']) && $decode['tanggalperiksa'] < $h1 || $decode['tanggalperiksa'] > $h7) {
+            if(!empty($decode['tanggalperiksa']) && $decode['tanggalperiksa'] < $h1 || $decode['tanggalperiksa'] > $h7) {
                $errors[] = 'Tanggal periksa bisa dilakukan tanggal '.$_h1.' hingga tanggal '.$_h7;
-            }*/
+            }
             if (!empty($decode['tanggalperiksa']) && !preg_match("/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$/",$decode['tanggalperiksa'])) {
                $errors[] = 'Format tanggal periksa tidak sesuai';
             }
@@ -1551,7 +1572,7 @@ class Site extends SiteModule
                         $interval = $interval->fetch();
 
                         if($interval[0]<=0){
-                            if ($jam >= $cekjam['jam_mulai']) {
+                            if ($jam >= $cekjam['jam_selesai']) {
                                 # code...
                                 $response = array(
                                     'metadata' => array(
@@ -2102,6 +2123,7 @@ class Site extends SiteModule
                 $nohp = '';
               }
 
+              $jeniskunjungan = 1;
               $nomorreferensi = '';
               if($jenispasien == 'JKN') {
                 $nomorreferensi = $referensi['nomor_referensi'];
@@ -2109,22 +2131,20 @@ class Site extends SiteModule
                   $bridging_sep = $this->core->mysql('bridging_sep')->where('no_rawat', $q['no_rawat'])->oneArray();
                   $nomorreferensi = $bridging_sep['no_rujukan'];
                   if(!empty($bridging_sep['noskdp'])) {
+                    $jeniskunjungan = 3;
                     $nomorreferensi = $bridging_sep['noskdp'];
                   }
                   if(!$bridging_sep) {
                     $bridging_sep_internal = $this->core->mysql('bridging_sep_internal')->where('no_rawat', $q['no_rawat'])->oneArray();
                     $nomorreferensi = $bridging_sep_internal['no_rujukan'];
                     if(!empty($bridging_sep_internal['noskdp'])) {
+                      $jeniskunjungan = 2;
                       $nomorreferensi = $bridging_sep_internal['noskdp'];
                     }
                   }
                 }
               }
 
-              $jeniskunjungan = 3;
-              //if($referensi['jenis_kunjungan'] !='') {
-              //  $jeniskunjungan = $referensi['jenis_kunjungan'];
-              //}
 
               $kodebooking = convertNorawat($q['no_rawat']).''.$maping_poli_bpjs['kd_poli_bpjs'].''.$reg_periksa['no_reg'];
               if($jenispasien == 'JKN') {
@@ -2393,7 +2413,7 @@ class Site extends SiteModule
                 if($mlite_antrian_loket){
                     date_default_timezone_set($this->settings->get('settings.timezone'));
                     $data = [
-                        'kodebooking' => $q['nomor_referensi'],
+                        'kodebooking' => $q['kodebooking'],
                         'taskid' => 1,
                         'waktu' => strtotime($mlite_antrian_loket['postdate'].' '.$mlite_antrian_loket['start_time']) * 1000
                     ];
@@ -2436,7 +2456,7 @@ class Site extends SiteModule
                 if($mlite_antrian_loket){
                     date_default_timezone_set($this->settings->get('settings.timezone'));
                     $data = [
-                        'kodebooking' => $q['nomor_referensi'],
+                        'kodebooking' => $q['kodebooking'],
                         'taskid' => 2,
                         'waktu' => strtotime($mlite_antrian_loket['end_time']) * 1000
                     ];
@@ -2479,7 +2499,7 @@ class Site extends SiteModule
                 if($mutasi_berkas){
                     date_default_timezone_set($this->settings->get('settings.timezone'));
                     $data = [
-                        'kodebooking' => $q['nomor_referensi'],
+                        'kodebooking' => $q['kodebooking'],
                         'taskid' => 3,
                         'waktu' => strtotime($mutasi_berkas['dikirim']) * 1000
                     ];
@@ -2522,7 +2542,7 @@ class Site extends SiteModule
                 if($mutasi_berkas){
                     date_default_timezone_set($this->settings->get('settings.timezone'));
                     $data = [
-                        'kodebooking' => $q['nomor_referensi'],
+                        'kodebooking' => $q['kodebooking'],
                         'taskid' => 4,
                         'waktu' => strtotime($mutasi_berkas['diterima']) * 1000
                     ];
@@ -2565,7 +2585,7 @@ class Site extends SiteModule
                 if($pemeriksaan_ralan){
                     date_default_timezone_set($this->settings->get('settings.timezone'));
                     $data = [
-                        'kodebooking' => $q['nomor_referensi'],
+                        'kodebooking' => $q['kodebooking'],
                         'taskid' => 5,
                         'waktu' => strtotime($pemeriksaan_ralan['datajam']) * 1000
                     ];
@@ -2609,7 +2629,7 @@ class Site extends SiteModule
                 if($resep_obat){
                     date_default_timezone_set($this->settings->get('settings.timezone'));
                     $data = [
-                        'kodebooking' => $q['nomor_referensi'],
+                        'kodebooking' => $q['kodebooking'],
                         'taskid' => 6,
                         'waktu' => strtotime($resep_obat['datajam']) * 1000
                     ];
@@ -2652,7 +2672,7 @@ class Site extends SiteModule
                 if($resep_obat){
                     date_default_timezone_set($this->settings->get('settings.timezone'));
                     $data = [
-                        'kodebooking' => $q['nomor_referensi'],
+                        'kodebooking' => $q['kodebooking'],
                         'taskid' => 7,
                         'waktu' => strtotime($resep_obat['datajam']) * 1000
                     ];
@@ -2693,7 +2713,7 @@ class Site extends SiteModule
                 $reg_periksa = $this->core->mysql('reg_periksa')->where('tgl_registrasi', $date)->where('no_rkm_medis', $q['no_rkm_medis'])->where('stts', 'Batal')->oneArray();
                 if($reg_periksa){
                     $data = [
-                        'kodebooking' => $q['nomor_referensi'],
+                        'kodebooking' => $q['kodebooking'],
                         'taskid' => 99,
                         'waktu' => strtotime(date('Y-m-d H:i:s')) * 1000
                     ];
