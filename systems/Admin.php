@@ -23,8 +23,14 @@ class Admin extends Main
         $access = '';
         $this->assign['username'] = '';
 
-        if($this->db('mlite_users')->where('id', $_SESSION['mlite_user'])->oneArray()) {
-          $username = $this->getUserInfo('fullname', null, true);
+        if(isset_or($_SESSION['mlite_user']) == '') {
+          $id = 1;
+        } else {
+          $id = $_SESSION['mlite_user'];
+        }
+
+        if($this->db('mlite_users')->where('id', $id)->oneArray()) {
+          $username = $this->getUserInfo('fullname', $id, true);
           $access = $this->getUserInfo('access');
           $this->assign['username']      = !empty($username) ? $username : $this->getUserInfo('username');
         }
@@ -103,7 +109,13 @@ class Admin extends Main
         $nav = [];
         $modules = $this->module->getArray();
 
-        if ($this->getUserInfo('access') != 'all') {
+        if($_SESSION['mlite_user'] == '') {
+          $id = 1;
+        } else {
+          $id = $_SESSION['mlite_user'];
+        }
+
+        if ($this->getUserInfo('access', $id, $refresh = false) != 'all') {
             $modules = array_intersect_key($modules, array_fill_keys(explode(',', $this->getUserInfo('access')), null));
         }
 
@@ -205,10 +217,12 @@ class Admin extends Main
         }
 
         // Is IP blocked?
-        /*if ((time() - $attempt['expires']) < 0) {
-            $this->setNotify('failure', sprintf('Batas maksimum login tercapai. Tunggu %s menit untuk coba lagi.', ceil(($attempt['expires']-time())/60)));
-            return false;
-        }*/
+        if($this->settings->get('settings.keamanan') == 'ya') {
+          if ((time() - $attempt['expires']) < 0) {
+              $this->setNotify('failure', sprintf('Batas maksimum login tercapai. Tunggu %s menit untuk coba lagi.', ceil(($attempt['expires']-time())/60)));
+              return false;
+          }
+        }
 
         $row = $this->db('mlite_users')->where('username', $username)->oneArray();
 
@@ -236,10 +250,14 @@ class Admin extends Main
 
             // ... and block if reached maximum attempts
             if ($attempt['attempts'] % 3 == 0) {
-                $this->db('mlite_login_attempts')->where('ip', $_SERVER['REMOTE_ADDR'])->save(['expires' => strtotime("+10 minutes")]);
-                $attempt['expires'] = strtotime("+10 minutes");
+                if($this->settings->get('settings.keamanan') == 'ya') {
+                    $this->db('mlite_login_attempts')->where('ip', $_SERVER['REMOTE_ADDR'])->save(['expires' => strtotime("+10 minutes")]);
+                    $attempt['expires'] = strtotime("+10 minutes");
 
-                $this->setNotify('failure', sprintf('Batas maksimum login tercapai. Tunggu %s menit untuk coba lagi.', ceil(($attempt['expires']-time())/60)));
+                    $this->setNotify('failure', sprintf('Batas maksimum login tercapai. Tunggu %s menit untuk coba lagi.', ceil(($attempt['expires']-time())/60)));
+                } else {
+                  $this->setNotify('failure', 'Anda mencoba login berkali-kali. Pastikan username dan password anda sesuai.');                    
+                }
             } else {
                 $this->setNotify('failure', 'Username atau password salah!');
             }
@@ -272,7 +290,7 @@ class Admin extends Main
     private function _getPoliklinik($kd_poli = null)
     {
         $result = [];
-        $rows = $this->db('poliklinik')->toArray();
+        $rows = $this->mysql('poliklinik')->toArray();
 
         if (!$kd_poli) {
             $kd_poliArray = [];

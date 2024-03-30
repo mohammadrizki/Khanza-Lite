@@ -150,23 +150,6 @@ class Site extends SiteModule
                 ->where('berkas_digital_perawatan.no_rawat', $row['no_rawat'])
                 ->asc('master_berkas_digital.nama')
                 ->toArray();
-              $galleri_pasien = $this->core->mysql('mlite_pasien_galleries_items')
-                ->join('mlite_pasien_galleries', 'mlite_pasien_galleries.id = mlite_pasien_galleries_items.gallery')
-                ->where('mlite_pasien_galleries.slug', $row['no_rkm_medis'])
-                ->toArray();
-
-              $berkas_digital_pasien = array();
-              if (count($galleri_pasien)) {
-                  foreach ($galleri_pasien as $galleri) {
-                      $galleri['src'] = unserialize($galleri['src']);
-
-                      if (!isset($galleri['src']['sm'])) {
-                          $galleri['src']['sm'] = isset($galleri['src']['xs']) ? $galleri['src']['xs'] : $galleri['src']['lg'];
-                      }
-
-                      $berkas_digital_pasien[] = $galleri;
-                  }
-              }
 
               $row = htmlspecialchars_array($row);
               $row['nm_pasien'] = $this->core->getPasienInfo('nm_pasien', $row['no_rkm_medis']);
@@ -186,7 +169,6 @@ class Site extends SiteModule
               $row['kd_penyakit'] = $this->_getDiagnosa('kd_penyakit', $row['no_rawat'], $row['status_lanjut']);
               $row['nm_penyakit'] = $this->_getDiagnosa('nm_penyakit', $row['no_rawat'], $row['status_lanjut']);
               $row['berkas_digital'] = $berkas_digital;
-              $row['berkas_digital_pasien'] = $berkas_digital_pasien;
               $row['sepURL'] = url(['veda', 'sep', $row['no_sep']]);
               $row['pdfURL'] = url(['veda', 'pdf', $this->convertNorawat($row['no_rawat'])]);
               $row['downloadURL'] = url(['veda', 'downloadpdf', $this->convertNorawat($row['no_rawat'])]);
@@ -276,23 +258,6 @@ class Site extends SiteModule
                 ->where('berkas_digital_perawatan.no_rawat', $row['no_rawat'])
                 ->asc('master_berkas_digital.nama')
                 ->toArray();
-              $galleri_pasien = $this->core->mysql('mlite_pasien_galleries_items')
-                ->join('mlite_pasien_galleries', 'mlite_pasien_galleries.id = mlite_pasien_galleries_items.gallery')
-                ->where('mlite_pasien_galleries.slug', $row['no_rkm_medis'])
-                ->toArray();
-
-              $berkas_digital_pasien = array();
-              if (count($galleri_pasien)) {
-                  foreach ($galleri_pasien as $galleri) {
-                      $galleri['src'] = unserialize($galleri['src']);
-
-                      if (!isset($galleri['src']['sm'])) {
-                          $galleri['src']['sm'] = isset($galleri['src']['xs']) ? $galleri['src']['xs'] : $galleri['src']['lg'];
-                      }
-
-                      $berkas_digital_pasien[] = $galleri;
-                  }
-              }
 
               $row = htmlspecialchars_array($row);
               $row['nm_pasien'] = $this->core->getPasienInfo('nm_pasien', $row['no_rkm_medis']);
@@ -317,7 +282,6 @@ class Site extends SiteModule
               $row['kd_penyakit'] = $this->_getDiagnosa('kd_penyakit', $row['no_rawat'], $row['status_lanjut']);
               $row['nm_penyakit'] = $this->_getDiagnosa('nm_penyakit', $row['no_rawat'], $row['status_lanjut']);
               $row['berkas_digital'] = $berkas_digital;
-              $row['berkas_digital_pasien'] = $berkas_digital_pasien;
               $row['sepURL'] = url(['veda', 'sep', $row['no_sep']]);
               $row['pdfURL'] = url(['veda', 'pdf', $this->convertNorawat($row['no_rawat'])]);
               $row['downloadURL'] = url(['veda', 'downloadpdf', $this->convertNorawat($row['no_rawat'])]);
@@ -407,23 +371,6 @@ class Site extends SiteModule
                 ->where('berkas_digital_perawatan.no_rawat', $row['no_rawat'])
                 ->asc('master_berkas_digital.nama')
                 ->toArray();
-              $galleri_pasien = $this->core->mysql('mlite_pasien_galleries_items')
-                ->join('mlite_pasien_galleries', 'mlite_pasien_galleries.id = mlite_pasien_galleries_items.gallery')
-                ->where('mlite_pasien_galleries.slug', $row['no_rkm_medis'])
-                ->toArray();
-
-              $berkas_digital_pasien = array();
-              if (count($galleri_pasien)) {
-                  foreach ($galleri_pasien as $galleri) {
-                      $galleri['src'] = unserialize($galleri['src']);
-
-                      if (!isset($galleri['src']['sm'])) {
-                          $galleri['src']['sm'] = isset($galleri['src']['xs']) ? $galleri['src']['xs'] : $galleri['src']['lg'];
-                      }
-
-                      $berkas_digital_pasien[] = $galleri;
-                  }
-              }
 
               $row = htmlspecialchars_array($row);
               $row['nm_pasien'] = $this->core->getPasienInfo('nm_pasien', $row['no_rkm_medis']);
@@ -443,7 +390,6 @@ class Site extends SiteModule
               $row['kd_penyakit'] = $this->_getDiagnosa('kd_penyakit', $row['no_rawat'], $row['status_lanjut']);
               $row['nm_penyakit'] = $this->_getDiagnosa('nm_penyakit', $row['no_rawat'], $row['status_lanjut']);
               $row['berkas_digital'] = $berkas_digital;
-              $row['berkas_digital_pasien'] = $berkas_digital_pasien;
               $row['sepURL'] = url(['veda', 'sep', $row['no_sep']]);
               $row['pdfURL'] = url(['veda', 'pdf', $this->convertNorawat($row['no_rawat'])]);
               $row['downloadURL'] = url(['veda', 'downloadpdf', $this->convertNorawat($row['no_rawat'])]);
@@ -670,23 +616,6 @@ class Site extends SiteModule
                 ->where('berkas_digital_perawatan.no_rawat', $row['no_rawat'])
                 ->asc('master_berkas_digital.nama')
                 ->toArray();
-              $galleri_pasien = $this->core->mysql('mlite_pasien_galleries_items')
-                ->join('mlite_pasien_galleries', 'mlite_pasien_galleries.id = mlite_pasien_galleries_items.gallery')
-                ->where('mlite_pasien_galleries.slug', $row['no_rkm_medis'])
-                ->toArray();
-
-              $berkas_digital_pasien = array();
-              if (count($galleri_pasien)) {
-                  foreach ($galleri_pasien as $galleri) {
-                      $galleri['src'] = unserialize($galleri['src']);
-
-                      if (!isset($galleri['src']['sm'])) {
-                          $galleri['src']['sm'] = isset($galleri['src']['xs']) ? $galleri['src']['xs'] : $galleri['src']['lg'];
-                      }
-
-                      $berkas_digital_pasien[] = $galleri;
-                  }
-              }
 
               $row = htmlspecialchars_array($row);
               $row['no_sep'] = $this->_getSEPInfo('no_sep', $row['no_rawat']);
@@ -695,7 +624,6 @@ class Site extends SiteModule
               $row['kd_penyakit'] = $this->_getDiagnosa('kd_penyakit', $row['no_rawat'], $row['status_lanjut']);
               $row['nm_penyakit'] = $this->_getDiagnosa('nm_penyakit', $row['no_rawat'], $row['status_lanjut']);
               $row['berkas_digital'] = $berkas_digital;
-              $row['berkas_digital_pasien'] = $berkas_digital_pasien;
               $row['sepURL'] = url(['veda', 'sep', $row['no_sep']]);
               $row['pdfURL'] = url(['veda', 'pdf', $this->convertNorawat($row['no_rawat'])]);
               $row['downloadURL'] = url(['veda', 'downloadpdf', $this->convertNorawat($row['no_rawat'])]);
@@ -728,23 +656,6 @@ class Site extends SiteModule
                 ->where('berkas_digital_perawatan.no_rawat', $row['no_rawat'])
                 ->asc('master_berkas_digital.nama')
                 ->toArray();
-              $galleri_pasien = $this->core->mysql('mlite_pasien_galleries_items')
-                ->join('mlite_pasien_galleries', 'mlite_pasien_galleries.id = mlite_pasien_galleries_items.gallery')
-                ->where('mlite_pasien_galleries.slug', $row['no_rkm_medis'])
-                ->toArray();
-
-              $berkas_digital_pasien = array();
-              if (count($galleri_pasien)) {
-                  foreach ($galleri_pasien as $galleri) {
-                      $galleri['src'] = unserialize($galleri['src']);
-
-                      if (!isset($galleri['src']['sm'])) {
-                          $galleri['src']['sm'] = isset($galleri['src']['xs']) ? $galleri['src']['xs'] : $galleri['src']['lg'];
-                      }
-
-                      $berkas_digital_pasien[] = $galleri;
-                  }
-              }
 
               $row = htmlspecialchars_array($row);
               $row['no_sep'] = $this->_getSEPInfo('no_sep', $row['no_rawat']);
@@ -753,7 +664,6 @@ class Site extends SiteModule
               $row['kd_penyakit'] = $this->_getDiagnosa('kd_penyakit', $row['no_rawat'], $row['status_lanjut']);
               $row['nm_penyakit'] = $this->_getDiagnosa('nm_penyakit', $row['no_rawat'], $row['status_lanjut']);
               $row['berkas_digital'] = $berkas_digital;
-              $row['berkas_digital_pasien'] = $berkas_digital_pasien;
               $row['sepURL'] = url(['veda', 'sep', $row['no_sep']]);
               $row['pdfURL'] = url(['veda', 'pdf', $this->convertNorawat($row['no_rawat'])]);
               $row['downloadURL'] = url(['veda', 'downloadpdf', $this->convertNorawat($row['no_rawat'])]);
@@ -778,24 +688,6 @@ class Site extends SiteModule
           ->where('berkas_digital_perawatan.no_rawat', $this->revertNorawat($id))
           ->asc('master_berkas_digital.nama')
           ->toArray();
-
-        $galleri_pasien = $this->core->mysql('mlite_pasien_galleries_items')
-          ->join('mlite_pasien_galleries', 'mlite_pasien_galleries.id = mlite_pasien_galleries_items.gallery')
-          ->where('mlite_pasien_galleries.slug', $this->getRegPeriksaInfo('no_rkm_medis', $this->revertNorawat($id)))
-          ->toArray();
-
-        $berkas_digital_pasien = array();
-        if (count($galleri_pasien)) {
-            foreach ($galleri_pasien as $galleri) {
-                $galleri['src'] = unserialize($galleri['src']);
-
-                if (!isset($galleri['src']['sm'])) {
-                    $galleri['src']['sm'] = isset($galleri['src']['xs']) ? $galleri['src']['xs'] : $galleri['src']['lg'];
-                }
-
-                $berkas_digital_pasien[] = $galleri;
-            }
-        }
 
         $no_rawat = $this->revertNorawat($id);
         $query = $this->core->mysql()->pdo()->prepare("select no,nm_perawatan,pemisah,if(biaya=0,'',biaya),if(jumlah=0,'',jumlah),if(tambahan=0,'',tambahan),if(totalbiaya=0,'',totalbiaya),totalbiaya from billing where no_rawat='$no_rawat'");
@@ -943,14 +835,6 @@ class Site extends SiteModule
           ->where('no_rawat', $this->revertNorawat($id))
           ->toArray();
 
-        $klinis_radiologi = $this->core->mysql('diagnosa_pasien_klinis')
-          ->join('permintaan_radiologi', 'permintaan_radiologi.noorder=diagnosa_pasien_klinis.noorder')
-          ->where('no_rawat', $this->revertNorawat($id))
-          ->toArray();
-        $saran_rad = $this->core->mysql('saran_kesan_rad')
-          ->where('no_rawat', $this->revertNorawat($id))
-          ->toArray();
-
         $pemeriksaan_laboratorium = [];
         $rows_pemeriksaan_laboratorium = $this->core->mysql('periksa_lab')
           ->join('jns_perawatan_lab', 'jns_perawatan_lab.kd_jenis_prw=periksa_lab.kd_jenis_prw')
@@ -982,11 +866,6 @@ class Site extends SiteModule
           ->where('no_rawat', $this->revertNorawat($id))
           ->oneArray();
 
-        $rujukan_internal_poli_detail = $this->core->mysql('rujukan_internal_poli_detail')
-          ->where('no_rawat', $this->revertNorawat($id))
-          ->oneArray();
-        $this->tpl->set('rujukan_internal_poli_detail', $rujukan_internal_poli_detail);
-
         $this->tpl->set('pasien', $pasien);
         $this->tpl->set('reg_periksa', $reg_periksa);
         $this->tpl->set('rujukan_internal', $rujukan_internal);
@@ -1014,10 +893,10 @@ class Site extends SiteModule
         $this->tpl->set('laporan_operasi', $laporan_operasi);
 
         $this->tpl->set('berkas_digital', $berkas_digital);
-        $this->tpl->set('berkas_digital_pasien', $berkas_digital_pasien);
         $this->tpl->set('hasil_radiologi', $this->core->mysql('hasil_radiologi')->where('no_rawat', $this->revertNorawat($id))->toArray());
         $this->tpl->set('gambar_radiologi', $this->core->mysql('gambar_radiologi')->where('no_rawat', $this->revertNorawat($id))->toArray());
         $this->tpl->set('vedika', htmlspecialchars_array($this->settings('vedika')));
+        $this->tpl->set('pengaturan_billing', $this->settings->get('vedika.billing'));
         echo $this->tpl->draw(MODULES.'/vedika/view/pdf.html', true);
         exit();
       } else {
@@ -1032,24 +911,6 @@ class Site extends SiteModule
           ->where('berkas_digital_perawatan.no_rawat', $this->revertNorawat($id))
           ->asc('master_berkas_digital.nama')
           ->toArray();
-
-        $galleri_pasien = $this->core->mysql('mlite_pasien_galleries_items')
-          ->join('mlite_pasien_galleries', 'mlite_pasien_galleries.id = mlite_pasien_galleries_items.gallery')
-          ->where('mlite_pasien_galleries.slug', $this->getRegPeriksaInfo('no_rkm_medis', $this->revertNorawat($id)))
-          ->toArray();
-
-        $berkas_digital_pasien = array();
-        if (count($galleri_pasien)) {
-            foreach ($galleri_pasien as $galleri) {
-                $galleri['src'] = unserialize($galleri['src']);
-
-                if (!isset($galleri['src']['sm'])) {
-                    $galleri['src']['sm'] = isset($galleri['src']['xs']) ? $galleri['src']['xs'] : $galleri['src']['lg'];
-                }
-
-                $berkas_digital_pasien[] = $galleri;
-            }
-        }
 
         $no_rawat = $this->revertNorawat($id);
         $query = $this->core->mysql()->pdo()->prepare("select no,nm_perawatan,pemisah,if(biaya=0,'',biaya),if(jumlah=0,'',jumlah),if(tambahan=0,'',tambahan),if(totalbiaya=0,'',totalbiaya),totalbiaya from billing where no_rawat='$no_rawat'");
@@ -1233,7 +1094,6 @@ class Site extends SiteModule
         $this->tpl->set('laporan_operasi', $laporan_operasi);
 
         $this->tpl->set('berkas_digital', $berkas_digital);
-        $this->tpl->set('berkas_digital_pasien', $berkas_digital_pasien);
         $this->tpl->set('hasil_radiologi', $this->core->mysql('hasil_radiologi')->where('no_rawat', $this->revertNorawat($id))->oneArray());
         $this->tpl->set('gambar_radiologi', $this->core->mysql('gambar_radiologi')->where('no_rawat', $this->revertNorawat($id))->toArray());
         $this->tpl->set('vedika', htmlspecialchars_array($this->settings('vedika')));

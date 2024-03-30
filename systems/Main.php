@@ -215,7 +215,15 @@ abstract class Main
             }
 
             if (empty(parseURL(1))) {
-                redirect(url([ADMIN, 'dashboard', 'main']));
+                if(MULTI_APP) {
+                    if(!empty(MULTI_APP_REDIRECT)) {
+                        redirect(url([ADMIN, MULTI_APP_REDIRECT, 'main']));
+                    } else {
+                        redirect(url([ADMIN, 'dashboard', 'main']));
+                    }
+                } else {
+                    redirect(url([ADMIN, 'dashboard', 'main']));
+                }
             } elseif (!isset($_GET['t']) || ($_SESSION['token'] != @$_GET['t'])) {
                 return false;
             }
@@ -238,7 +246,15 @@ abstract class Main
                         $this->db('mlite_remember_me')->where('remember_me.user_id', $token[0])->where('remember_me.token', $token[1])->save(['expiry' => time()+60*60*24*30]);
 
                         if (strpos($_SERVER['SCRIPT_NAME'], '/'.ADMIN.'/') !== false) {
-                            redirect(url([ADMIN, 'dashboard', 'main']));
+                            if(MULTI_APP) {
+                                if(!empty(MULTI_APP_REDIRECT)) {
+                                    redirect(url([ADMIN, MULTI_APP_REDIRECT, 'main']));
+                                } else {
+                                    redirect(url([ADMIN, 'dashboard', 'main']));
+                                }
+                            } else {
+                                redirect(url([ADMIN, 'dashboard', 'main']));
+                            }
                         }
 
                         return true;
@@ -356,7 +372,7 @@ abstract class Main
         return $_next_no_reg;
     }
 
-    public function setNoBooking($kd_dokter, $kd_poli = null, $date)
+    public function setNoBooking($kd_dokter, $date, $kd_poli = null)
     {
         $last_no_reg = $this->mysql()->pdo()->prepare("SELECT ifnull(MAX(CONVERT(RIGHT(no_reg,3),signed)),0) FROM booking_registrasi WHERE kd_poli = '$kd_poli' AND tanggal_periksa = '$date' AND kd_dokter = '$kd_dokter'");
         if($this->settings->get('settings.dokter_ralan_per_dokter') == 'true') {
@@ -372,17 +388,16 @@ abstract class Main
         return $next_no_reg;
     }
 
-    public function setNoResep()
+    public function setNoResep($date)
     {
-        $date = date('Y-m-d');
-        $last_no_resep = $this->mysql()->pdo()->prepare("SELECT ifnull(MAX(CONVERT(RIGHT(no_resep,4),signed)),0) FROM resep_obat WHERE tgl_peresepan = '$date'");
+        $last_no_resep = $this->mysql()->pdo()->prepare("SELECT ifnull(MAX(CONVERT(RIGHT(no_resep,4),signed)),0) FROM resep_obat WHERE tgl_peresepan = '$date' OR tgl_perawatan =  '$date'");
         $last_no_resep->execute();
         $last_no_resep = $last_no_resep->fetch();
         if(empty($last_no_resep[0])) {
           $last_no_resep[0] = '0000';
         }
         $next_no_resep = sprintf('%04s', ($last_no_resep[0] + 1));
-        $next_no_resep = date('Ymd').''.$next_no_resep;
+        $next_no_resep = date('Ymd', strtotime($date)).''.$next_no_resep;
 
         return $next_no_resep;
     }

@@ -37,6 +37,18 @@ return [
               `news_id`	INTEGER NOT NULL REFERENCES mlite_news(id) ON DELETE CASCADE,
               `tag_id`	INTEGER NOT NULL REFERENCES mlite_news_tags(id) ON DELETE CASCADE
             );");
+
+            $core->mysql()->pdo()->exec("CREATE TABLE `mlite_pages` (
+              `id` integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+              `title` text NOT NULL,
+              `slug` text NOT NULL,
+              `desc` text NULL,
+              `template` text NOT NULL,
+              `date` text NOT NULL,
+              `content` text NOT NULL,
+              `markdown` INTEGER DEFAULT 0
+            );");
+
         } else {
             $core->mysql()->pdo()->exec("CREATE TABLE IF NOT EXISTS `mlite_news` (
               `id` int(11) NOT NULL,
@@ -92,7 +104,7 @@ return [
             ('website', 'perpage', '5'),
             ('website', 'disqus', ''),
             ('website', 'dateformat', 'M d, Y'),
-            ('website', 'title', 'Berita Internal'),
+            ('website', 'title', 'mLITE Indonesia'),
             ('website', 'desc', '... RS Masa Gitu ...'),
             ('website', 'latestPostsCount', '5')
         ");
