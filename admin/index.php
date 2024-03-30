@@ -41,18 +41,11 @@ if ($core->loginCheck()) {
                 $url = array_merge([ADMIN], $arrayURL);
                 redirect(url($url));
             }
-            if(MULTI_APP) {
-                if(!empty(MULTI_APP_REDIRECT)) {
-                    redirect(url([ADMIN, MULTI_APP_REDIRECT, 'main']));
-                } else {
-                    redirect(url([ADMIN, 'dashboard', 'main']));
-                }
-            } else {
-                redirect(url([ADMIN, 'dashboard', 'main']));
-            }
+            redirect(url([ADMIN, 'dashboard', 'main']));
         }
     }
     $core->drawTheme('login.html');
+
 }
 
 ob_end_flush();

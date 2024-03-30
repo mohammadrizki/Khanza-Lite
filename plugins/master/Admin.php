@@ -2,7 +2,7 @@
 namespace Plugins\Master;
 
 use Systems\AdminModule;
-use Systems\MySQL;
+
 use Plugins\Master\Src\Dokter;
 use Plugins\Master\Src\Petugas;
 use Plugins\Master\Src\Poliklinik;
@@ -41,10 +41,48 @@ use Plugins\Master\Src\StatusKerja;
 use Plugins\Master\Src\StatusWP;
 use Plugins\Master\Src\MetodeRacik;
 use Plugins\Master\Src\RuangOk;
-use Systems\Lib\Fpdf\PDF_MC_Table;
 
 class Admin extends AdminModule
 {
+
+  protected $dokter;
+  protected $petugas;
+  protected $poliklinik;
+  protected $bangsal;
+  protected $kamar;
+  protected $databarang;
+  protected $jnsperawatan;
+  protected $jnsperawataninap;
+  protected $jnsperawatanlab;
+  protected $jnsperawatanradiologi;
+  protected $bahasa;
+  protected $cacat;
+  protected $suku;
+  protected $perusahaan;
+  protected $penjab;
+  protected $golonganbarang;
+  protected $industrifarmasi;
+  protected $jenis;
+  protected $kategoribarang;
+  protected $kategoripenyakit;
+  protected $kategoriperawatan;
+  protected $masteraturanpakai;
+  protected $masterberkasdigital;
+  protected $kodesatuan;
+  protected $spesialis;
+  protected $bank;
+  protected $bidang;
+  protected $departemen;
+  protected $emergencyindex;
+  protected $jabatan;
+  protected $jenjangjabatan;
+  protected $kelompokjabatan;
+  protected $pendidikan;
+  protected $resikokerja;
+  protected $statuskerja;
+  protected $statuswp;
+  protected $metoderacik;
+  protected $ruangok;
 
     public function init()
     {
@@ -613,13 +651,13 @@ class Admin extends AdminModule
 
     public function postJnsPerawatanLabTemplateSave()
     {
-      $this->mysql('template_laboratorium')->save($_POST);
+      $this->db('template_laboratorium')->save($_POST);
       exit();
     }
 
     public function postJnsPerawatanLabTemplateHapus()
     {
-      $this->mysql('template_laboratorium')->where('id_template', $_POST['id_template'])->delete();
+      $this->db('template_laboratorium')->where('id_template', $_POST['id_template'])->delete();
       exit();
     }
 
@@ -1972,11 +2010,6 @@ class Admin extends AdminModule
         // MODULE SCRIPTS
         $this->core->addCSS(url([ADMIN, 'master', 'css']));
         $this->core->addJS(url([ADMIN, 'master', 'javascript']), 'footer');
-    }
-
-    protected function mysql($table = NULL)
-    {
-        return new MySQL($table);
     }
 
 }
